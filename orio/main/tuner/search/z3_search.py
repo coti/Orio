@@ -55,7 +55,7 @@ class Z3search:
     # Defines a variable's definition domain
     def __addDefinitionDomain( self, var, dom ):
         # get the variables
-        for k,v in Globals.z3variables.iteritems( ):
+        for k,v in Globals.z3variables.items( ):
             locals()[k] = v
         if len( dom ) == 0:
             return
@@ -69,7 +69,7 @@ class Z3search:
     # Add the constraints
     def __addConstraints( self, constraints ):
         # get the variables
-        for k,v in Globals.z3variables.iteritems( ):
+        for k,v in Globals.z3variables.items( ):
             locals()[k] = v
         for vname, rhs in constraints:
             # convert to constraint to prefix syntax
@@ -121,7 +121,7 @@ class Z3search:
     # Add the constraints
     def __addConstraints( self, constraints ):
         # get the variables
-        for k,v in Globals.z3variables.iteritems( ):
+        for k,v in Globals.z3variables.items( ):
             locals()[k] = v
         for vname, rhs in constraints:
             # convert to constraint to prefix syntax
@@ -209,7 +209,15 @@ class Z3search:
 
         # Get a possible point that minimizes the 1-norm distance to this random point
         # forget the booleans
-        self.optim.minimize( z3.Sum( [ self.z3abs( locals()[name] - rpp[name] )for name in self.axis_names  if not z3.is_bool( locals()[name] ) ] ) )
+
+        l = []
+        for name in self.axis_names:
+            if not z3.is_bool( locals()[name] ):
+                l.append( self.z3abs( locals()[name] - rpp[name] ) )
+        definition = z3.Sum( l )
+        self.optim.minimize( definition )
+        # For some reason, it does not work with a list comprehension.
+#        self.optim.minimize( z3.Sum( [ self.z3abs( locals()[name] - rpp[name] )for name in self.axis_names  if not z3.is_bool( locals()[name] ) ] ) )
         if z3.unsat == self.optim.check():
             return None
         model = self.optim.model()
@@ -222,7 +230,9 @@ class Z3search:
         
     # Defines the variables, their type and, for numeric ones, their definition domain
     def __addVariableNames( self, names, ranges ):
+        info( str( names ) )
         for idx, name in enumerate( names ):
+            info( name )
             values = ranges[idx]
             if ( [ True, False ] == values ) or ( [ False, True ] == values ): #len( values ) == 2 and ( False in values or True in values ):
                 Globals.z3variables[name] = z3.Bool( name )
@@ -245,11 +255,17 @@ class Z3search:
     # Defines a variable's definition domain
     def __addDefinitionDomain( self, var, dom ):
         # get the variables
-        for k,v in Globals.z3variables.iteritems( ):
+        info( "globals : " + str( Globals.z3variables ))
+        for k,v in Globals.z3variables.items( ):
             locals()[k] = v
         if len( dom ) == 0:
             return
-        definition = z3.Or( [ eval( "(" + var + " == " + str( v ) + ")" ) for v in dom ] )
+        l = []
+        for v in dom:
+            l.append( eval( ("%s == %s" )%( v, var ) ) )
+        definition = z3.Or( l )
+        # For some reason, it does not work with a list comprehension.
+        #        definition = z3.Or( [ eval( ( "( %s == %s )" ) %( var, v ) ) for v in dom ] )
         # definition = z3.And( [ v >= 0, v < len( dom ) ] )
         
         self.solver.add( definition )

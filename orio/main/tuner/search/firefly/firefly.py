@@ -47,6 +47,7 @@ class Firefly(orio.main.tuner.search.search.Search):
             self.gamma = self._get_gamma()
         else:
             self.gamma = kwargs.get('gamma', 0.01)  # absorption coefficient
+        info( "z3 solver: " + str( self.use_z3 ) )
 
     def _get_gamma(self):
         a = np.random.random_sample((self.population_size, self.problem_dim))
@@ -86,7 +87,8 @@ class Firefly(orio.main.tuner.search.search.Search):
                     tmp_minimum = perf_params[variable]
                     index_to_be_constrained = j
             perf_params[self.unroll_list[k][index_to_be_constrained]] = 1
-        return self.perfParamTabToCoord(self.perfParamToCoord(perf_params))
+
+        return self.z3solver.perfParamToCoord(perf_params)
 
     def step(self):
         # don't need to be ordered by brightness
@@ -116,12 +118,11 @@ class Firefly(orio.main.tuner.search.search.Search):
                             self.max_bound - self.min_bound) * self.alpha
         new_position = self.population[i].position + direction + noise
         new_position = self.close_bounds_to_unroll(new_position, i)  # this also push into regular bounds.
-
-        perf_params = self.coordToPerfParams(list(new_position))
-        perf_params = self.getNearestFeasibleZ3(perf_params)
+        perf_params = self.coordToPerfParams(new_position)
+        perf_params = self.z3solver.getNearestFeasible( new_position )
         if perf_params is None:
             raise ValueError("std_pr: Impossible to find a feasible neighbor.")
-        coord = self.perfParamTabToCoord(self.perfParamToCoord(perf_params))
+        coord = self.z3solver.perfParamTabToCoord(perf_params)
         self.population[i].position = np.array(coord)
         return True
 

@@ -73,18 +73,18 @@ class Search:
         # TODO pass it as an option
         #        if 'use_z3' in params.keys():
         try:
-            import z3_search
+            from .z3_search import Z3search
             _use_z3 = True
         except Exception as e:
             _use_z3 = False
 
         if _use_z3:
             self.use_z3 = True
-            self.z3solver = z3_search.Z3search( self.total_dims, self.axis_names, self.axis_val_ranges, self.dim_uplimits, self.params['ptdriver'].tinfo.pparam_constraints, self )
+            self.z3solver = Z3search( self.total_dims, self.axis_names, self.axis_val_ranges, self.dim_uplimits, self.params['ptdriver'].tinfo.pparam_constraints, self )
         else:
             self.use_z3 = False
             self.z3solver = None
-        
+
     #----------------------------------------------------------
 
     def searchBestCoord(self):
@@ -173,7 +173,7 @@ class Search:
             if ipoint < len( self.axis_val_ranges[i] ):
                 perf_params[self.axis_names[i]] = self.axis_val_ranges[i][ipoint]
             else:
-                if ipoint > self.axis_val_ranges[-1]:
+                if ipoint > self.axis_val_ranges[i][-1]:
                     perf_params[self.axis_names[i]] = self.axis_val_ranges[i][-1]
                 else:
                     perf_params[self.axis_names[i]] = self.axis_val_ranges[i][0]
