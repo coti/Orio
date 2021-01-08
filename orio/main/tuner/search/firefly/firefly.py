@@ -40,13 +40,16 @@ class Firefly(orio.main.tuner.search.search.Search):
         self.alpha_decay = kwargs.get('alpha_decay', 0.9)
         self.beta_init = kwargs.get('beta_init', 1)
         self.unroll_list = []
-        self._get_algo_params()
         auto_gamma = kwargs.get('auto_gamma', True)
         if auto_gamma:
             # this ensures that the movement to be on average half of the distance between two fireflies
             self.gamma = self._get_gamma()
         else:
             self.gamma = kwargs.get('gamma', 0.01)  # absorption coefficient
+
+        self.__readAlgoArgs()
+
+        # self.use_z3 = False
         info( "z3 solver: " + str( self.use_z3 ) )
 
     def _get_gamma(self):
@@ -88,7 +91,10 @@ class Firefly(orio.main.tuner.search.search.Search):
                     index_to_be_constrained = j
             perf_params[self.unroll_list[k][index_to_be_constrained]] = 1
 
-        return self.z3solver.perfParamToCoord(perf_params)
+        if self.use_z3:
+            return self.z3solver.perfParamToCoord(perf_params)
+        else:
+            return perf_params
 
     def step(self):
         # don't need to be ordered by brightness
@@ -118,11 +124,18 @@ class Firefly(orio.main.tuner.search.search.Search):
                             self.max_bound - self.min_bound) * self.alpha
         new_position = self.population[i].position + direction + noise
         new_position = self.close_bounds_to_unroll(new_position, i)  # this also push into regular bounds.
-        perf_params = self.coordToPerfParams(new_position)
-        perf_params = self.z3solver.getNearestFeasible( new_position )
-        if perf_params is None:
-            raise ValueError("std_pr: Impossible to find a feasible neighbor.")
-        coord = self.z3solver.perfParamTabToCoord(perf_params)
+        if self.use_z3:
+            perf_params = self.z3solver.getNearestFeasible( new_position )
+            if perf_params is None:
+                raise ValueError("std_pr: Impossible to find a feasible neighbor.")
+            coord = self.z3solver.perfParamTabToCoord(perf_params)
+        else:
+            # We could have a routine in search.py that converts parameters to coords
+            coord = []
+            for idx,name in enumerate( self.axis_names ):
+                value = new_position[ name ]
+                coord.append( self.axis_val_ranges[idx].index( value ) )
+
         self.population[i].position = np.array(coord)
         return True
 
@@ -155,7 +168,7 @@ class Firefly(orio.main.tuner.search.search.Search):
     def _modify_alpha(self):
         self.alpha = self.alpha * self.alpha_decay
 
-    def _get_algo_params(self):
+    def __readAlgoArgs(self):
         for name, value in self.search_opts.items():
             if name == UNROLL_NAMES:
                 value = firefly_unroll_variables
@@ -173,3 +186,10 @@ class Firefly(orio.main.tuner.search.search.Search):
                 for unrolls in self.unroll_list:
                     if len(unrolls) < 2:
                         raise ValueError('std_pr: Unrolls number unfeasible.')
+
+            if name == self.__POPULATION_SIZE:
+                if not isinstance(rhs, int) or rhs < 0:
+                    err('orio.main.tuner.search.firefly: %s argument "%s" must be a positive integer or zero'
+                        % (self.__class__.__name__, name))
+                self.population_size = rhs
+
