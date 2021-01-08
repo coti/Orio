@@ -230,9 +230,7 @@ class Z3search:
         
     # Defines the variables, their type and, for numeric ones, their definition domain
     def __addVariableNames( self, names, ranges ):
-        info( str( names ) )
         for idx, name in enumerate( names ):
-            info( name )
             values = ranges[idx]
             if ( [ True, False ] == values ) or ( [ False, True ] == values ): #len( values ) == 2 and ( False in values or True in values ):
                 Globals.z3variables[name] = z3.Bool( name )
@@ -255,7 +253,6 @@ class Z3search:
     # Defines a variable's definition domain
     def __addDefinitionDomain( self, var, dom ):
         # get the variables
-        info( "globals : " + str( Globals.z3variables ))
         for k,v in Globals.z3variables.items( ):
             locals()[k] = v
         if len( dom ) == 0:
