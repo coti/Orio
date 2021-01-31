@@ -50,6 +50,8 @@ class Nevergrad(orio.main.tuner.search.search.Search):
 
     def myPerfCost( self, point ):
         #print( "point: " + str( point ) )
+        if not self.isValid( point ):
+            return float('inf')
         coord = self.pointToCoord( point )
         return self.getPerfCost( coord )
     
