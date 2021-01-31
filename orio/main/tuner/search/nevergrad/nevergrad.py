@@ -41,7 +41,7 @@ class Nevergrad(orio.main.tuner.search.search.Search):
         #        while not ((time.time()-start_time) > self.time_limit > 0):
         recommendation = self.optimizer.minimize( self.myPerfCost )
         point = self.pointToCoord( recommendation.value )
-        search_time = time.time()
+        search_time = time.time() - start_time
         runs = self.optimizer.num_ask
 
         # Can we get this from Nevergrad?
