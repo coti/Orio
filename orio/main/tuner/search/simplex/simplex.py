@@ -28,12 +28,13 @@ class Simplex(orio.main.tuner.search.search.Search):
     '''
 
     # algorithm-specific argument names
-    __LOCAL_DIST = 'local_distance'       # default: 0
-    __REFL_COEF = 'reflection_coef'       # default: 1.0
-    __EXP_COEF = 'expansion_coef'         # default: 2.0
-    __CONT_COEF = 'contraction_coef'      # default: 0.5
-    __SHRI_COEF = 'shrinkage_coef'        # default: 0.5
-    __X0       =  'x0'                    # default: all 0's
+    __LOCAL_DIST = 'local_distance'        # default: 0
+    __REFL_COEF  = 'reflection_coef'       # default: 1.0
+    __EXP_COEF   = 'expansion_coef'        # default: 2.0
+    __CONT_COEF  = 'contraction_coef'      # default: 0.5
+    __SHRI_COEF  = 'shrinkage_coef'        # default: 0.5
+    __X0         =  'x0'                   # default: all 0's
+    __USE_Z3     =  'use_z3'               # default: True
 
     #-----------------------------------------------------
 
@@ -358,6 +359,13 @@ class Simplex(orio.main.tuner.search.search.Search):
                            % (self.__class__.__name__, vname))
                     
                 self.local_distance = rhs
+                
+            if vname == self.__USE_Z3:
+                if not isinstance(rhs, bool):
+                    err('orio.main.tuner.search.simplex.simplex: %s argument "%s" must be a boolean'
+                           % (self.__class__.__name__, vname))
+                    
+                self.use_z3 = rhs
 
             # reflection coefficient
             elif vname == self.__REFL_COEF:
