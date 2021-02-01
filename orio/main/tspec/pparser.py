@@ -19,11 +19,13 @@ keywords = [
     'msimplex_reflection_coef', 'msimplex_expansion_coef',
     'msimplex_contraction_coef', 'msimplex_shrinkage_coef', 'msimplex_size', 'msimplex_x0',
     'simplex_reflection_coef', 'simplex_expansion_coef',
-    'simplex_contraction_coef', 'simplex_shrinkage_coef', 'simplex_local_distance', 'simplex_x0',
+    'simplex_contraction_coef', 'simplex_shrinkage_coef', 'simplex_local_distance', 'simplex_x0', 'simplex_use_z3',
+    'randomsimple_use_z3',
+    'firefly_use_z3',
     'cudacfg_instmix',
     'validation', 'validation_file', 'expected_output',
     'macro', 'performance_test_code', 'skeleton_test_code', 'skeleton_code_file',
-    'other', 'device_spec_file',
+    'other', 'device_spec_file'
 ]
 
 # map of reserved keywords
@@ -221,6 +223,9 @@ def p_arg_type(p):
                 | SIMPLEX_SHRINKAGE_COEF
                 | SIMPLEX_LOCAL_DISTANCE    
                 | SIMPLEX_X0
+                | SIMPLEX_USE_Z3
+                | RANDOMSIMPLE_USE_Z3
+                | FIREFLY_USE_Z3
                 | CUDACFG_INSTMIX
                 | VALIDATION_FILE
                 | EXPECTED_OUTPUT

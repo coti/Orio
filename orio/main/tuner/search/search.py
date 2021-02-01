@@ -9,6 +9,7 @@ class Search:
     '''The search engine used to explore the search space '''
 
     MAXFLOAT = float('inf')
+    use_z3 = True
 
     #----------------------------------------------------------
     
@@ -74,17 +75,18 @@ class Search:
 
         # TODO pass it as an option
         #        if 'use_z3' in params.keys():
-        try:
-            from .z3_search import Z3search
-            _use_z3 = True
-        except Exception as e:
-            _use_z3 = False
-
-        if _use_z3:
-            self.use_z3 = True
-            self.z3solver = Z3search( self.total_dims, self.axis_names, self.axis_val_ranges, self.dim_uplimits, self.params['ptdriver'].tinfo.pparam_constraints, self )
+        if self.use_z3:
+            try:
+                from .z3_search import Z3search
+                self.use_z3 = True
+            except Exception as e:
+                self.use_z3 = False
         else:
             self.use_z3 = False
+
+        if self.use_z3:
+            self.z3solver = Z3search( self.total_dims, self.axis_names, self.axis_val_ranges, self.dim_uplimits, self.params['ptdriver'].tinfo.pparam_constraints, self )
+        else:
             self.z3solver = None
 
     #----------------------------------------------------------
