@@ -172,10 +172,10 @@ class Search:
         for i in range(0, self.total_dims):
             ipoint = coord[i]
             # If the point is not in the definition domain, take the nearest feasible value (z3)
-            if ipoint < len( self.axis_val_ranges[i] ):
+            if ipoint < len( self.axis_val_ranges[i] ) and 0 < ipoint:
                 perf_params[self.axis_names[i]] = self.axis_val_ranges[i][ipoint]
             else:
-                if ipoint > self.axis_val_ranges[i][-1]:
+                if ipoint > len( self.axis_val_ranges[i] ):
                     perf_params[self.axis_names[i]] = self.axis_val_ranges[i][-1]
                 else:
                     perf_params[self.axis_names[i]] = self.axis_val_ranges[i][0]
