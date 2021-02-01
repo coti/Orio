@@ -27,7 +27,6 @@ class FireflyElement:
 
 
 class Firefly(orio.main.tuner.search.search.Search):
-    __USE_Z3     =  'use_z3'           # default: True
     __POPULATION_SIZE =  'population_size'
     
     def __init__(self, params, **kwargs):
@@ -188,13 +187,6 @@ class Firefly(orio.main.tuner.search.search.Search):
                 for unrolls in self.unroll_list:
                     if len(unrolls) < 2:
                         raise ValueError('std_pr: Unrolls number unfeasible.')
-
-            elif name == self.__USE_Z3:
-                if not isinstance(value, bool):
-                    err('orio.main.tuner.search.firefly: %s argument "%s" must be a boolean'
-                           % (self.__class__.__name__, vname))
-                    
-                self.use_z3 = value
 
             elif name == self.__POPULATION_SIZE:
                 if not isinstance(value, int) or rhs < 0:

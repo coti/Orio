@@ -8,7 +8,6 @@ from orio.main.util.globals import *
 
 
 class Randomsimple(orio.main.tuner.search.search.Search):
-    __USE_Z3     =  'use_z3'               # default: True
     def __init__(self, params):
 
         random.seed(1)
@@ -83,14 +82,7 @@ class Randomsimple(orio.main.tuner.search.search.Search):
         for vname, rhs in self.search_opts.items():
             if vname == 'total_runs':
                 self.total_runs = rhs
-
-            elif vname == self.__USE_Z3:
-                if not isinstance(rhs, bool):
-                    err('orio.main.tuner.search.randomsimple: %s argument "%s" must be a boolean'
-                           % (self.__class__.__name__, vname))
-                    
-                self.use_z3 = rhs
-
+                
             else:
                 err('orio.main.tuner.search.randomsimple: unrecognized %s algorithm-specific argument: "%s"' %
                     (self.__class__.__name__, vname))
